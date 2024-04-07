@@ -1,1 +1,27 @@
-version: 3
+version: "3.7"
+services:
+  server:
+    build:
+      context: .
+      dockerfile: app/Dockerfile # docker build -f app/Dockerfile .
+    ports:
+      - 8080:8080
+  db:
+    image: postgres
+    container_name: postgres
+    restart: always
+    command: -c 'config_file=/etc/postgresql/postgresql.conf' # 設定をカスタマイズ
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./app/db/script:/docker-entrypoint-initdb.d # init.sqlを実行
+      - ./app/config/postgresql.conf:/etc/postgresql/postgresql.conf # 設定をカスタマイズ
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_ROOT_USER=${ROOTUSER}
+      - POSTGRES_ROOT_PASSWORD=${ROOTPASS}
+    expose:
+      - 5432:5432
+volumes:
+  db-data:
